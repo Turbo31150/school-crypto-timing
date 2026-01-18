@@ -1,0 +1,19 @@
+jour,heure_debut,heure_fin,type_activite,priorite_trading
+Lundi,08:00,10:00,Cours Math,0
+Lundi,10:15,12:15,Cours Physique,0
+Lundi,14:00,16:00,Preparation,3
+Lundi,16:00,18:00,Libre,5
+Mardi,08:00,12:00,Cours,0
+Mardi,14:00,15:00,Reunion,1
+Mardi,15:00,18:00,Libre,5
+Mercredi,08:00,12:00,Libre,5
+Mercredi,14:00,16:00,Cours,0
+Jeudi,08:00,10:00,Cours,0
+Jeudi,10:00,12:00,Libre,5
+Jeudi,14:00,18:00,Libre,5
+Vendredi,08:00,12:00,Cours,0
+Vendredi,14:00,16:00,Correction,2
+Vendredi,16:00,18:00,Libre,5
+Samedi,09:00,12:00,Libre,5
+Samedi,14:00,18:00,Libre,5
+Dimanche,10:00,18:00,Libre,5

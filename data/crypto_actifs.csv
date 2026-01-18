@@ -1,0 +1,11 @@
+symbol,nom,exchange,is_active
+BTC,Bitcoin,MEXC,1
+ETH,Ethereum,MEXC,1
+SOL,Solana,MEXC,1
+XRP,Ripple,MEXC,1
+DOGE,Dogecoin,MEXC,1
+ADA,Cardano,MEXC,1
+AVAX,Avalanche,MEXC,1
+MATIC,Polygon,MEXC,1
+DOT,Polkadot,MEXC,1
+LINK,Chainlink,MEXC,1
