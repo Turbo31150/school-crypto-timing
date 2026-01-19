@@ -16,7 +16,7 @@ import argparse
 import sqlite3
 import logging
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, date, timedelta
 
 # Configuration logging
 logging.basicConfig(
@@ -93,6 +93,111 @@ def fetch_crypto_data(symbols: list = None) -> bool:
     return False
 
 
+# =========================================================================
+# SYNC HELPERS - Pour Hex App
+# =========================================================================
+
+def _jour_to_weekday_idx(jour: str) -> int:
+    """Map jour (FR/EN) -> weekday index (Mon=0..Sun=6)."""
+    if jour is None:
+        return 0
+    j = str(jour).strip().lower()
+    mapping = {
+        # FR
+        "lundi": 0, "mardi": 1, "mercredi": 2, "jeudi": 3,
+        "vendredi": 4, "samedi": 5, "dimanche": 6,
+        # EN
+        "monday": 0, "tuesday": 1, "wednesday": 2, "thursday": 3,
+        "friday": 4, "saturday": 5, "sunday": 6,
+    }
+    return mapping.get(j, 0)
+
+
+def _sync_scores_to_trading_window_scores(df_scores) -> int:
+    """
+    Synchronise df_scores -> trading_window_scores pour que l'app Hex (CELL 2)
+    reflète les scores calculés par le pipeline.
+    """
+    if df_scores is None or getattr(df_scores, "empty", True):
+        return 0
+
+    required_cols = {"jour", "heure_debut", "heure_fin", "symbol", "score", "raison"}
+    missing = required_cols - set(df_scores.columns)
+    if missing:
+        logger.warning(f"Sync skipped: colonnes manquantes: {sorted(missing)}")
+        return 0
+
+    # Semaine courante (lundi -> dimanche)
+    today = date.today()
+    week_start = today - timedelta(days=today.weekday())
+    week_end = week_start + timedelta(days=6)
+
+    conn = sqlite3.connect(DB_PATH)
+    cur = conn.cursor()
+
+    # prof_id (fallback = 1)
+    prof_id = 1
+    try:
+        row = cur.execute(
+            "SELECT id FROM professeurs WHERE name = ? LIMIT 1", ("Francois",)
+        ).fetchone()
+        if row and row[0]:
+            prof_id = int(row[0])
+    except Exception:
+        pass
+
+    # actif_id mapping dynamique
+    symbol_to_actif_id = {}
+    try:
+        rows = cur.execute("SELECT id, symbol FROM crypto_actifs").fetchall()
+        for aid, sym in rows:
+            if sym:
+                symbol_to_actif_id[str(sym).upper()] = int(aid)
+    except Exception as e:
+        logger.warning(f"Impossible de lire crypto_actifs: {e}")
+
+    # Nettoyage ciblé (uniquement la semaine courante)
+    cur.execute(
+        "DELETE FROM trading_window_scores WHERE prof_id = ? AND date BETWEEN ? AND ?",
+        (prof_id, week_start.isoformat(), week_end.isoformat()),
+    )
+
+    inserted = 0
+    for _, r in df_scores.iterrows():
+        sym = str(r["symbol"]).split("/")[0].upper()
+        actif_id = symbol_to_actif_id.get(sym)
+        if actif_id is None:
+            continue
+
+        d = week_start + timedelta(days=_jour_to_weekday_idx(r["jour"]))
+        cur.execute(
+            """
+            INSERT INTO trading_window_scores
+                (prof_id, actif_id, date, heure_debut, heure_fin, score, raison, recommendation,
+                 volatility_component, availability_component, market_component)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                prof_id,
+                actif_id,
+                d.isoformat(),
+                str(r["heure_debut"]),
+                str(r["heure_fin"]),
+                int(r["score"]),
+                str(r["raison"]),
+                str(r.get("recommendation", "HOLD")),
+                r.get("volatility_component"),
+                r.get("availability_component"),
+                r.get("market_component"),
+            ),
+        )
+        inserted += 1
+
+    conn.commit()
+    conn.close()
+    return inserted
+
+
 def calculate_scores() -> bool:
     """Calcule les Trading Window Scores"""
     from python.etl import HackathonETL
@@ -135,6 +240,14 @@ def calculate_scores() -> bool:
     if not df_scores.empty:
         # Export scores
         etl.export_to_sql(df_scores, 'calculated_scores', if_exists='replace')
+
+        # Sync vers trading_window_scores (table lue par l'app Hex CELL 2)
+        logger.info("Synchronisation vers trading_window_scores (pour Hex)...")
+        try:
+            n = _sync_scores_to_trading_window_scores(df_scores)
+            logger.info(f"[OK] trading_window_scores synchronisee: {n} lignes inserees")
+        except Exception as e:
+            logger.error(f"Sync trading_window_scores echouee: {e}")
 
         # Afficher top 5
         logger.info("\n=== TOP 5 CRENEAUX ===")

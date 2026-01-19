@@ -257,33 +257,45 @@ class HackathonETL:
         priorite = horaire_row.get('priorite_trading', 3)
         availability = priorite * 20  # 0-5 -> 0-100
 
-        # Composante volatilite (0-100)
+        # Bonus pour creneaux "Libre" (type_activite)
+        type_act = str(horaire_row.get('type_activite', '')).lower()
+        libre_bonus = 15 if 'libre' in type_act else 0
+
+        # Composante volatilite (0-100) - OPTIMISEE
         volatility = crypto_data.get('volatility', 50)
         pref_vol = preferences.get('pref_volatilite', 'medium')
 
         if pref_vol == 'low':
+            # Basse volatilite = bon score
             vol_score = max(0, 100 - volatility)
         elif pref_vol == 'high':
-            vol_score = volatility
+            vol_score = min(100, volatility * 2)
         else:
-            vol_score = 100 - abs(50 - volatility) * 2
+            # Medium: volatilite 3-15% est ideale, score 70-100
+            if volatility <= 20:
+                vol_score = min(100, 70 + volatility * 1.5)
+            else:
+                vol_score = max(40, 100 - (volatility - 20))
 
-        # Composante marche (funding + volume)
+        # Composante marche (funding + volume) - OPTIMISEE
         funding = abs(crypto_data.get('funding_rate', 0)) * 1000
-        volume_norm = min(100, crypto_data.get('volume', 5000) / 100)
-        market_score = (volume_norm * 0.7) + ((100 - funding) * 0.3)
+        volume = crypto_data.get('volume', 5000)
+        # Normaliser volume (>10k = bon)
+        volume_norm = min(100, (volume / 500) + 50)
+        market_score = (volume_norm * 0.6) + ((100 - min(funding, 50)) * 0.4)
 
-        # Score final pondere
-        score = int(
-            (vol_score * 0.3) +
-            (availability * 0.4) +
-            (market_score * 0.3)
+        # Score final pondere + bonus libre
+        raw_score = (
+            (vol_score * 0.25) +
+            (availability * 0.40) +
+            (market_score * 0.35)
         )
+        score = min(100, int(raw_score + libre_bonus))
 
-        # Determination recommendation
-        if score >= 80 and availability >= 80:
+        # Determination recommendation - SEUILS AJUSTES
+        if score >= 75 and availability >= 80:
             recommendation = 'TRADE'
-            raison = f"Excellent creneau: disponible, volatilite {volatility:.0f}%"
+            raison = f"Excellent creneau: score {score}, volatilite {volatility:.1f}%"
         elif score >= 60:
             recommendation = 'WATCH'
             raison = f"Creneau correct: score {score}, surveiller"
@@ -292,7 +304,7 @@ class HackathonETL:
             raison = f"Occupe ({horaire_row.get('type_activite', 'activite')})"
         else:
             recommendation = 'HOLD'
-            raison = f"Conditions non optimales"
+            raison = f"Conditions non optimales (score {score})"
 
         return {
             'score': score,

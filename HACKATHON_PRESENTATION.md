@@ -3,7 +3,7 @@
 ## Executive Summary (2-min Pitch)
 
 > "School & Crypto Timing resolves the schedule conflict vs crypto trading for teachers.
-> 180 calculated scores -> Heatmap ETH 89 -> AI recommends 'Thursday 10h'.
+> 45 calculated scores -> Heatmap ETH 100 -> AI recommends 'Jeudi 10h-12h'.
 > Live on Hex now!"
 
 ---
@@ -50,15 +50,15 @@ Score = (Availability × 0.35) + (Volatility × 0.25) +
 ### Top Trading Windows
 | Asset | Time Slot | Score | Action |
 |-------|-----------|-------|--------|
-| ETH | Thu 10:00-12:00 | 89 | TRADE |
-| ETH | Thu 14:00-18:00 | 89 | TRADE |
-| BTC | Mon 16:00 | 85 | HOLD |
+| ETH | Jeudi 10:00-12:00 | 100 | TRADE |
+| SOL | Jeudi 10:00-12:00 | 100 | TRADE |
+| BTC | Jeudi 10:00-12:00 | 98 | TRADE |
 
 ### AI Coach Output
 ```
-"Focus on 2026-01-20 at 08:00 for best profitability!
-Avoid red zones during class hours.
-Data-driven trading > emotional decisions."
+"Concentrez-vous sur Jeudi 10h-12h (score 100) pour le meilleur rendement!
+Evitez les zones rouges pendant les heures de cours.
+Trading data-driven > decisions emotionnelles."
 ```
 
 ---
@@ -72,7 +72,7 @@ Data-driven trading > emotional decisions."
 - Interactive Heatmap (Plotly)
 - TRADE/HOLD/CAUTION Charts
 - AI Coach Report
-- 180 Pre-calculated Scores
+- 45 Pre-calculated Scores
 
 ### Embed Ready
 ```html
@@ -86,7 +86,7 @@ Data-driven trading > emotional decisions."
 | Layer | Technology | Purpose |
 |-------|------------|---------|
 | Frontend | Hex Notebook | Interactive App |
-| Database | SQLite | 180 scores storage |
+| Database | SQLite | 45 scores storage |
 | Viz | Plotly | Heatmap + Charts |
 | Processing | Pandas | Data manipulation |
 | API | MEXC/CCXT | Live crypto data |
@@ -100,9 +100,9 @@ Data-driven trading > emotional decisions."
 Repository: https://github.com/Turbo31150/school-crypto-timing
 Lines of Code: 1,844+
 Commits: 7
-Database Records: 180 scores
+Database Records: 45 trading window scores
 Published: 2026-01-18 03:11 CET
-Development Time: ~4 hours
+Top Score: 100/100 (ETH/SOL Jeudi 10h-12h)
 ```
 
 ---
@@ -111,7 +111,7 @@ Development Time: ~4 hours
 
 ### MVP (Current)
 - 1 teacher profile
-- 180 pre-calculated scores
+- 45 pre-calculated scores (15 slots x 3 assets)
 - Static schedule input
 
 ### V1.0 (Q1 2026)
