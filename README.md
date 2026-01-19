@@ -21,7 +21,7 @@
 ```
 1. Analyze teacher's weekly schedule (availability)
 2. Combine with MEXC crypto volatility data
-3. Generate 180 trading window scores (0-100)
+3. Generate 45 trading window scores (0-100)
 4. Display heatmap + AI recommendations
 ```
 
@@ -44,11 +44,11 @@
 
 | Asset | Best Slot | Score | Recommendation |
 |-------|-----------|-------|----------------|
-| **ETH** | Thursday 10h-12h | **89** | TRADE |
-| **ETH** | Thursday 14h-18h | **89** | TRADE |
-| **BTC** | Monday 16h | **85** | HOLD |
+| **ETH** | Jeudi 10h-12h | **100** | TRADE |
+| **SOL** | Jeudi 10h-12h | **100** | TRADE |
+| **BTC** | Jeudi 10h-12h | **98** | TRADE |
 
-**AI Coach Says:** *"Focus on 2026-01-20 at 08:00 for best profitability!"*
+**AI Coach Says:** *"Focus sur Jeudi 10h-12h (score 100) et évitez les zones CAUTION."*
 
 ---
 
@@ -57,7 +57,7 @@
 | Component | Technology |
 |-----------|------------|
 | **Frontend** | Hex Notebook → Published App |
-| **Database** | SQLite (180 trading scores) |
+| **Database** | SQLite (45 trading scores) |
 | **Visualization** | Plotly (Heatmap + Charts) |
 | **Data Processing** | Pandas + Custom Scoring |
 | **AI Logic** | Trading Coach Algorithm |
@@ -70,7 +70,7 @@
 ```
 hackaton/
 ├── run.py                    # Main entry point
-├── hackaton.db               # SQLite DB (180 scores)
+├── hackaton.db               # SQLite DB (45 scores)
 ├── hex_cells_ready.py        # All 7 Hex cells
 ├── requirements.txt          # Python dependencies
 ├── python/
@@ -137,8 +137,8 @@ python run.py --test
 | **Published** | 2026-01-18 03:11 CET |
 | **Author** | claire.domingues@ac-toulouse.fr |
 | **Location** | Montlaur, Occitanie, France |
-| **Top Score** | ETH 89/100 |
-| **Total Scores** | 180 trading windows |
+| **Top Score** | 100/100 (Jeudi 10h-12h, ETH/SOL) |
+| **Total Scores** | 45 trading windows |
 
 ---
 

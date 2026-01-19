@@ -44,7 +44,13 @@ scores_df = sql_result.copy() if 'sql_result' in dir() else pd.DataFrame()
 
 # Convert and prepare data
 scores_df['date'] = pd.to_datetime(scores_df['date'])
-scores_df['jour_semaine'] = scores_df['date'].dt.day_name()
+
+# Mapping EN -> FR pour les jours
+day_map_en_fr = {
+    'Monday': 'Lundi', 'Tuesday': 'Mardi', 'Wednesday': 'Mercredi',
+    'Thursday': 'Jeudi', 'Friday': 'Vendredi', 'Saturday': 'Samedi', 'Sunday': 'Dimanche'
+}
+scores_df['jour_semaine'] = scores_df['date'].dt.day_name().map(day_map_en_fr)
 scores_df['heure'] = scores_df['heure_debut'].str.split(':').str[0].astype(int)
 
 # Create score categories
@@ -64,10 +70,10 @@ trade_count = len(scores_df[scores_df['score'] >= 75])
 hold_count = len(scores_df[(scores_df['score'] >= 50) & (scores_df['score'] < 75)])
 caution_count = len(scores_df[scores_df['score'] < 50])
 
-print(f"TRADE (>75): {trade_count} windows")
-print(f"HOLD (50-75): {hold_count} windows")
-print(f"CAUTION (<50): {caution_count} windows")
-print(f"Total: {len(scores_df)} windows analyzed")
+print(f"TRADE (>=75): {trade_count} fenetres")
+print(f"HOLD (50-74): {hold_count} fenetres")
+print(f"CAUTION (<50): {caution_count} fenetres")
+print(f"Total: {len(scores_df)} fenetres analysees")
 """
 
 # ============================================================
@@ -105,36 +111,45 @@ print(filtered[['jour_semaine', 'heure_debut', 'symbol', 'score', 'categorie']].
 # CELL 5: HEATMAP VISUALIZATION [PYTHON]
 # ============================================================
 """
-# Prepare pivot table for heatmap
+# Ordre des jours FR pour la heatmap
+jour_order = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi']
+
+# Prepare pivot table for heatmap JOUR x HEURE (meilleure visualisation)
 heatmap_pivot = filtered.pivot_table(
     values='score',
     index='heure',
-    columns='symbol',
+    columns='jour_semaine',
     aggfunc='max',
     fill_value=0
 )
+
+# Reorder columns to match jour_order
+heatmap_pivot = heatmap_pivot.reindex(columns=[j for j in jour_order if j in heatmap_pivot.columns])
 
 # Create interactive heatmap
 fig_heatmap = go.Figure(data=go.Heatmap(
     z=heatmap_pivot.values,
     x=heatmap_pivot.columns,
-    y=heatmap_pivot.index,
+    y=[f"{h}h" for h in heatmap_pivot.index],
     colorscale='RdYlGn',
+    zmin=0,
+    zmax=100,
     text=np.round(heatmap_pivot.values, 0),
     texttemplate='%{text}',
-    textfont={"size": 10},
+    textfont={"size": 12, "color": "black"},
     colorbar=dict(title="Score", thickness=15, len=0.7),
-    hovertemplate='<b>%{y}h</b><br>Asset: %{x}<br>Score: %{z}<extra></extra>'
+    hovertemplate='<b>%{x} %{y}</b><br>Score: %{z}/100<extra></extra>'
 ))
 
 fig_heatmap.update_layout(
-    title="Trading Window Scores by Hour & Asset",
-    xaxis_title="Cryptocurrency Asset",
-    yaxis_title="Hour of Day",
+    title="Meilleurs creneaux de trading (Jour x Heure)",
+    xaxis_title="Jour de la semaine",
+    yaxis_title="Heure",
     height=500,
     width=900,
     plot_bgcolor='white',
-    margin=dict(l=50, r=50, t=80, b=50)
+    margin=dict(l=50, r=50, t=80, b=50),
+    yaxis=dict(autorange='reversed')  # 8h en haut
 )
 
 fig_heatmap.show()
@@ -161,12 +176,12 @@ fig_bar.update_traces(textposition='outside')
 fig_bar.update_layout(height=400, showlegend=False, margin=dict(l=50, r=50, t=80, b=50))
 fig_bar.show()
 
-# Chart 2: Timeline - Average score by day
+# Chart 2: Timeline - Average score by day (FR)
 daily_stats = filtered.groupby('jour_semaine')['score'].agg(['mean', 'count']).reset_index()
-day_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+jour_order_fr = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche']
 daily_stats['jour_semaine'] = pd.Categorical(
     daily_stats['jour_semaine'],
-    categories=day_order,
+    categories=jour_order_fr,
     ordered=True
 )
 daily_stats = daily_stats.sort_values('jour_semaine')
@@ -176,12 +191,12 @@ fig_line = px.line(
     x='jour_semaine',
     y='mean',
     markers=True,
-    title="Average Trading Score by Day of Week",
-    labels={'jour_semaine': 'Day', 'mean': 'Average Score'},
+    title="Score moyen par jour de la semaine",
+    labels={'jour_semaine': 'Jour', 'mean': 'Score moyen'},
     line_shape='linear'
 )
 
-fig_line.update_traces(line=dict(color='#3498db', width=3), marker=dict(size=10))
+fig_line.update_traces(line=dict(color='#3498db', width=3), marker=dict(size=12))
 fig_line.update_layout(height=400, margin=dict(l=50, r=50, t=80, b=50), hovermode='x unified')
 fig_line.show()
 """
@@ -198,32 +213,32 @@ if len(filtered) > 0:
     best_hour = filtered.groupby('heure')['score'].mean().idxmax()
 
     ai_coaching = f'''
-=== AI TRADING COACH SUMMARY ===
+=== COACH IA - RESUME TRADING ===
 
-Profile: {selected_prof}
-Assets: {', '.join(selected_actifs)}
-Period: {date_debut.strftime('%Y-%m-%d')} to {date_fin.strftime('%Y-%m-%d')}
+Profil: {selected_prof}
+Actifs: {', '.join(selected_actifs)}
+Periode: {date_debut.strftime('%Y-%m-%d')} au {date_fin.strftime('%Y-%m-%d')}
 
-ANALYSIS:
-- Total windows analyzed: {len(filtered)}
-- Trade opportunities (>75): {len(filtered[filtered['score'] >= 75])}
-- Hold opportunities (50-75): {len(filtered[(filtered['score'] >= 50) & (filtered['score'] < 75)])}
-- Caution zones (<50): {len(filtered[filtered['score'] < 50])}
-- Average score: {avg_score:.1f}/100
+ANALYSE:
+- Fenetres analysees: {len(filtered)}
+- Opportunites TRADE (>=75): {len(filtered[filtered['score'] >= 75])}
+- Opportunites HOLD (50-74): {len(filtered[(filtered['score'] >= 50) & (filtered['score'] < 75)])}
+- Zones CAUTION (<50): {len(filtered[filtered['score'] < 50])}
+- Score moyen: {avg_score:.1f}/100
 
-KEY INSIGHTS:
-- Best trading day: {best_day} (avg score: {filtered[filtered['jour_semaine']==best_day]['score'].mean():.1f})
-- Best trading hour: {best_hour}:00 - {best_hour+1}:00
-- Top asset this week: {filtered.groupby('symbol')['score'].mean().idxmax()}
+INSIGHTS CLES:
+- Meilleur jour: {best_day} (score moyen: {filtered[filtered['jour_semaine']==best_day]['score'].mean():.1f})
+- Meilleure heure: {best_hour}h - {best_hour+2}h
+- Meilleur actif: {filtered.groupby('symbol')['score'].mean().idxmax()}
 
-TOP 5 OPPORTUNITIES:
+TOP 5 OPPORTUNITES:
 {top_5[['jour_semaine', 'heure_debut', 'symbol', 'score']].to_string(index=False)}
 
-RECOMMENDATION:
-Focus on {best_day.lower()} from {best_hour}h to {best_hour+2}h.
-Avoid CAUTION zones (red on heatmap) due to schedule conflicts.
+RECOMMANDATION:
+Concentrez-vous sur {best_day} de {best_hour}h a {best_hour+2}h.
+Evitez les zones rouges (conflits horaires cours).
 
-Data-driven trading > emotional decisions. Good luck!
+Trading data-driven > decisions emotionnelles. Bonne chance!
     '''
     print(ai_coaching)
 else:
