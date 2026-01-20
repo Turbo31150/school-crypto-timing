@@ -1,0 +1,95 @@
+================================================
+HEX NOTEBOOK MINIMAL - 3 CELLS ONLY
+Supprime TOUTES les cells actuelles et colle ces 3
+================================================
+
+================================================
+CELL 1 [SQL] - Connectée à hackaton.db
+================================================
+SELECT
+    ts.date,
+    ts.heure_debut,
+    ts.heure_fin,
+    ts.score,
+    ca.symbol,
+    p.name as prof_name
+FROM trading_window_scores ts
+JOIN crypto_actifs ca ON ts.actif_id = ca.id
+JOIN professeurs p ON ts.prof_id = p.id
+ORDER BY ts.score DESC
+
+================================================
+CELL 2 [PYTHON] - Heatmap
+================================================
+import pandas as pd
+import plotly.graph_objects as go
+import numpy as np
+
+# Use the SQL result (Hex names it automatically)
+df = dataframe_1.copy()
+
+# Map days to French
+day_map = {'Monday': 'Lundi', 'Tuesday': 'Mardi', 'Wednesday': 'Mercredi',
+           'Thursday': 'Jeudi', 'Friday': 'Vendredi'}
+
+df['date'] = pd.to_datetime(df['date'])
+df['jour'] = df['date'].dt.day_name().map(day_map)
+df['heure'] = df['heure_debut'].str.split(':').str[0].astype(int)
+
+# Pivot for heatmap
+pivot = df.pivot_table(values='score', index='heure', columns='jour', aggfunc='max', fill_value=0)
+pivot = pivot.reindex(columns=['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi'])
+
+# Create heatmap
+fig = go.Figure(data=go.Heatmap(
+    z=pivot.values,
+    x=pivot.columns,
+    y=[f"{h}h" for h in pivot.index],
+    colorscale='RdYlGn',
+    zmin=0, zmax=100,
+    text=np.round(pivot.values, 0),
+    texttemplate='%{text}',
+    textfont={"size": 14, "color": "black"},
+    hovertemplate='%{x} %{y}<br>Score: %{z}<extra></extra>'
+))
+
+fig.update_layout(
+    title="Trading Windows Score (Jour x Heure)",
+    xaxis_title="Jour",
+    yaxis_title="Heure",
+    height=500,
+    yaxis=dict(autorange='reversed')
+)
+
+fig.show()
+
+================================================
+CELL 3 [PYTHON] - Summary
+================================================
+# Stats
+print("=== SCHOOL & CRYPTO TIMING ===")
+print(f"Total windows: {len(df)}")
+print(f"Max score: {df['score'].max()}")
+print(f"TRADE (>=75): {len(df[df['score'] >= 75])}")
+
+# Best slots
+print("\n=== TOP 5 SLOTS ===")
+top5 = df.nlargest(5, 'score')[['jour', 'heure_debut', 'symbol', 'score']]
+print(top5.to_string(index=False))
+
+print("\n=== RECOMMENDATION ===")
+best = df.loc[df['score'].idxmax()]
+print(f"Focus on {best['jour']} {best['heure_debut']} for {best['symbol']} (Score: {best['score']})")
+
+================================================
+FIN - 3 CELLS ONLY
+================================================
+
+INSTRUCTIONS:
+1. Dans Hex, supprime TOUTES les cells existantes
+2. Crée une cell SQL, colle CELL 1
+3. Run CELL 1 (vérifie que ça retourne des données)
+4. Crée une cell Python, colle CELL 2
+5. Crée une cell Python, colle CELL 3
+6. Run All
+7. Publish
