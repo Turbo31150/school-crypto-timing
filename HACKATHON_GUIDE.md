@@ -1,6 +1,6 @@
-# 🎬 Guide de Préséntation - Hackathon Hex 2026
+# 🎬 Guide de Présentation - Hackathon Hex 2026
 
-## Fichiers Essentiels pour la Préséntation
+## Fichiers Essentiels pour la Présentation
 
 ### Fichiers à avoir sur vous / votre ordinateur
 
@@ -19,14 +19,14 @@
 ## 🎯 Checklist Avant le Hackathon
 
 - ✅ Tester l'app publique sur un téléphone (vérifier que ça fonctionne sur mobile)
-- ✅ Mémoriser le lien public : [https://app.hex.tech/019bce85-8714-7002-a7fc-e8078cad974e/app/School-Crypto-Timing-032CAGPxUhxFTL3eU6LpRr/latest](https://app.hex.tech/019bce85-8714-7002-a7fc-e8078cad974e/app/School-Crypto-Timing-032CAGPxUhxFTL3eU6LpRr/latest)
+- ✅ Mémoriser le lien public : https://app.hex.tech/019bce85-8714-7002-a7fc-e8078cad974e/app/School-Crypto-Timing-032CAGPxUhxFTL3eU6LpRr/latest
 - ✅ Prévoir 2-3 cas de démo (cliquer sur filtres, montrer heatmap)
 - ✅ Imprimer le README.md (une copie papier au cas où)
 - ✅ Tourner la vidéo de présentation (2-3 min)
 
 ---
 
-## 📺 Vidéo de Préséntation - Script
+## 📺 Vidéo de Présentation - Script
 
 **Durée** : 2-3 minutes maximum
 **Format** : MP4, 720p minimum
@@ -111,16 +111,16 @@ R : 48h intenses - ETL, scoring algorithm, intégration Hex, et optimisation UX.
 
 ## ✅ Status : PRODUCTION READY
 
-L'application est **stable**, **fonctionnelle** et **préte à être présentée** au jury.
+L'application est **stable**, **fonctionnelle** et **prête à être présentée** au jury.
 
 **Liens utiles** :
-- 🌐 App publique : [https://app.hex.tech/019bce85-8714-7002-a7fc-e8078cad974e/app/School-Crypto-Timing-032CAGPxUhxFTL3eU6LpRr/latest](https://app.hex.tech/019bce85-8714-7002-a7fc-e8078cad974e/app/School-Crypto-Timing-032CAGPxUhxFTL3eU6LpRr/latest)
-- 💻 GitHub : [https://github.com/Turbo31150/school-crypto-timing](https://github.com/Turbo31150/school-crypto-timing)
-- 📝 Editor Hex : [https://app.hex.tech/019bce85-8714-7002-a7fc-e8078cad974e/hex/School-Crypto-Timing-032CAGPxUhxFTL3eU6LpRr/draft/logic](https://app.hex.tech/019bce85-8714-7002-a7fc-e8078cad974e/hex/School-Crypto-Timing-032CAGPxUhxFTL3eU6LpRr/draft/logic)
+- 🌐 App publique : https://app.hex.tech/019bce85-8714-7002-a7fc-e8078cad974e/app/School-Crypto-Timing-032CAGPxUhxFTL3eU6LpRr/latest
+- 💻 GitHub : https://github.com/Turbo31150/school-crypto-timing
+- 📝 Editor Hex : https://app.hex.tech/019bce85-8714-7002-a7fc-e8078cad974e/hex/School-Crypto-Timing-032CAGPxUhxFTL3eU6LpRr/draft/logic
 
 ---
 
-## 🎓 Notes pour la Préséntation Orale
+## 🎓 Notes pour la Présentation Orale
 
 ### Points clés à mentionner
 1. **Problème réel** : Les profs-traders manquent de temps pour analyser manuellement les meilleurs moments

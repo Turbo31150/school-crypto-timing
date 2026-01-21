@@ -39,7 +39,7 @@ Une application **data-driven** qui optimise les fenêtres de trading en fonctio
 
 ```
 python/        → Scripts ETL, scoring, requêtes BD
-sql/           → Schémas et requêtes SQL  
+sql/           → Schémas et requêtes SQL
 data/          → Données brutes
 hackaton.db    → Base de données SQLite (45 fenêtres)
 requirements.txt → Dépendances Python
